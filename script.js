@@ -153,7 +153,7 @@ async function pageloaded() {
                     <div class="card-body">
                       <h4 class="card-title font-weight-bold">${article.title}</h4>
                       <p class="card-text">${article.content}</p>
-                      <a href="${article.url}" class="card-link">Read More..</a>
+                      <a href="${article.url}" target="_blank" class="card-link">Read More..</a>
                     </div>
                   </div>
                 </div>`
