@@ -2,7 +2,7 @@ let investments = [];
 let user = { name: 'John Doe', email: 'john@email.com' };
 let charts = {};
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     setupCharts();
     loadProfile();
 });
@@ -128,4 +128,37 @@ function updateProfile() {
     loadProfile();
     closeProfileForm();
     alert('Profile updated!');
+}
+
+
+
+// ..............Getting News from Backend................
+
+async function pageloaded() {
+    const news = await fetch('http://localhost:8081/news/')
+    // console.log(news);
+
+    if (!news.ok)
+        console.log("Error fetching from backend");
+
+    let newsData = await news.json();
+    let articles = newsData.articles
+    let newsParent = document.getElementById("parentNews")
+    console.log(articles);
+
+    articles.forEach((article) => {
+        let newsDiv = `<div class="col">
+                  <div class="card">
+                    <img src="${article.urlToImage}" class="card-img-top" alt="...">
+                    <div class="card-body">
+                      <h4 class="card-title font-weight-bold">${article.title}</h4>
+                      <p class="card-text">${article.content}</p>
+                      <a href="${article.url}" class="card-link">Read More..</a>
+                    </div>
+                  </div>
+                </div>`
+        newsParent.innerHTML += newsDiv
+    })
+
+
 }
