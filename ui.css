@@ -73,14 +73,23 @@ body {
     min-width: 100%;
 }
 
+/* ✅ MODIFIED: Center canvas and limit width to 50% */
 .chart-card canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    width: 100% !important;
-    height: 100% !important;
+    display: block;
+    margin: 0 auto;
+    width: 50% !important;
+    height: auto !important;
+}
+
+/* ✅ ADDED: Slightly larger section headings inside cards */
+.chart-card .card-header h6 {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* ✅ ADDED: Enlarge default canvas font for labels */
+canvas {
+    font-size: 16px !important;
 }
 
 /* Modal styling */

@@ -10,24 +10,96 @@ let user = {
 let charts = {};
 
 // Backend URL (Update this to your backend URL)
-const API_BASE_URL = "http://localhost:8081";
+const API_BASE_URL = "http://localhost:3000";
 
 document.addEventListener("DOMContentLoaded", function  () {
   setupCharts();
   loadProfile();
   loadNewsData();
+  updateNetWorth();
+  // updateInvestmentChart()
 });
 
+
 function setupCharts() {
-    charts.investment = new Chart(document.getElementById('investmentChart').getContext('2d'), {
-        type: 'pie',
-        data: { labels: ['Stocks', 'Gold'], datasets: [{ data: [0, 0], backgroundColor: ['#0d6efd', '#ffc107'] }] },
-        options: { responsive: false }
-    });
-    charts.sector = new Chart(document.getElementById('sectorChart').getContext('2d'), {
-        type: 'pie', data: { labels: [], datasets: [{ data: [], backgroundColor: ['#198754', '#dc3545', '#fd7e14', '#6f42c1'] }] },
-        options: { responsive: false }
-    });
+   // Create the chart with initial zero data
+  // Create the chart with initial zero data
+charts.investment = new Chart(document.getElementById('investmentChart').getContext('2d'), {
+  type: 'pie',
+  data: {
+    labels: ['Stocks', 'Gold'],
+    datasets: [{
+      data: [0, 0],
+      backgroundColor: ['#0d6efd', '#ffc107']
+    }]
+  },
+  options: {
+    responsive: false,
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            const label = context.label || '';
+            const value = context.parsed || 0;
+            return `${label}: ${value} investments`;
+          }
+        }
+      }
+    }
+  }
+});
+
+// Fetch investment data from backend and update the chart
+fetch('http://localhost:3000/total-investments')
+  .then(response => response.json())
+  .then(data => {
+    const stocksAmount = data.stocks || 0;
+    const goldAmount = data.gold || 0;
+
+    // ✅ Explicitly set labels and data
+    charts.investment.data.labels = ['Stocks', 'Gold'];
+    charts.investment.data.datasets[0].data = [stocksAmount, goldAmount];
+    charts.investment.update();
+  })
+  .catch(error => {
+    console.error("Error fetching investment data:", error);
+  });
+
+charts.sector = new Chart(document.getElementById('sectorChart').getContext('2d'), {
+  type: 'pie',
+  data: {
+    labels: [],
+    datasets: [{
+      data: [],
+      backgroundColor: ['#198754', '#dc3545', '#fd7e14', '#6f42c1', '#0dcaf0', '#ffc107']
+    }]
+  },
+  options: {
+    responsive: false,
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            const label = context.label || '';
+            const value = context.parsed || 0;
+            return `${label}: ${value} investments`;
+          }
+        }
+      }
+    }
+  }
+});
+
+// Fetch sector distribution data from backend and update the chart
+fetch('http://localhost:3000/sector-distribution')
+  .then(res => res.json())
+  .then(data => {
+    charts.sector.data.labels = data.labels;
+    charts.sector.data.datasets[0].data = data.data;
+    charts.sector.update();
+  })
+  .catch(err => console.error('Error fetching sector distribution:', err));
+
     charts.budget = new Chart(document.getElementById('budgetChart').getContext('2d'), {
         type: 'bar', data: { labels: ['Left', 'Spent'], datasets: [{ data: [3000, 1500], backgroundColor: ['#198754', '#dc3545'] }] },
         options: { responsive: false, indexAxis: 'y' }
@@ -123,13 +195,83 @@ function addInvestment() {
         const sector = document.getElementById('stockSector').value;
         const amount = parseFloat(document.getElementById('stockAmount').value);
         if (!symbol || !name || !qty || !price || !sector) { alert('Please fill all fields'); return; }
-        investments.push({ type: 'Stock', name: `${name} (${symbol})`, amount: amount, sector: sector });
+        investments.push({ type: 'Stock', name: `${name} (${symbol})`, amount: amount, sector: sector });if (isStock) {
+          const symbol = document.getElementById('stockSymbol').value.trim();
+          const name = document.getElementById('stockName').value.trim();
+          const qty = parseFloat(document.getElementById('stockQty').value);
+          const price = parseFloat(document.getElementById('stockPrice').value);
+          const sector = document.getElementById('stockSector').value;
+          const amount = parseFloat(document.getElementById('stockAmount').value);
+          const date = document.getElementById('stockDate').value;
+        
+          if (!symbol || !name || !qty || !price || !sector) {
+            alert('Please fill all fields');
+            return;
+          }
+        
+          // Add to frontend investments array
+          investments.push({ type: 'Stock', name: `${name} (${symbol})`, amount, sector, date });
+
+
+          // 🔁 Send to backend
+          fetch(`${API_BASE_URL}/user-stocks`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ symbol, name, quantity: qty, price, sector, amount, date }),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              console.log("Stock saved:", data);
+            })
+            .catch((error) => {
+              console.error("Error saving stock:", error);
+            });
+        }
+        
     } else {
-        const price = parseFloat(document.getElementById('goldPrice').value);
-        const weight = parseFloat(document.getElementById('goldWeight').value);
-        const amount = parseFloat(document.getElementById('goldAmount').value);
-        if (!price || !weight) { alert('Please fill all fields'); return; }
-        investments.push({ type: 'Gold', name: `Gold (${weight} oz)`, amount: amount, sector: 'Commodities' });
+      const price = parseFloat(document.getElementById('goldPrice').value);
+      const weight = parseFloat(document.getElementById('goldWeight').value);
+      const amount = parseFloat(document.getElementById('goldAmount').value);
+      const date = document.getElementById('goldDate').value;
+    
+      if (!price || !weight || !amount || !date) {
+        alert('Please fill all fields');
+        return;
+      }
+    
+      // Add to frontend array
+      investments.push({
+        type: 'Gold',
+        name: `Gold (${weight} oz)`,
+        amount: amount,
+        sector: 'Commodities'
+      });
+    
+      // Send to backend
+      fetch('http://localhost:3000/user-gold', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          price: price,
+          weight: weight,
+          amount: amount,
+          date: date
+        })
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to save gold investment');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Gold investment saved:', data); // optional if you want to refresh view
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
     }
     updateEverything();
     closeForm();
@@ -276,7 +418,7 @@ function loadProfile() {
 // Update functions
 function updateEverything() {
   updateCharts();
-  updateNetWorth();
+
   updateBudgetChart();
 }
 function updateCharts() {
@@ -298,8 +440,16 @@ function updateCharts() {
   charts.sector.update();
 }
 function updateNetWorth() {
-  const total = investments.reduce((sum, inv) => sum + inv.amount, 0);
-  document.getElementById("netWorth").textContent = `$${total.toLocaleString()}`;
+  fetch("http://localhost:3000/net-worth")
+    .then(response => response.json())
+    .then(data => {
+      const total = data.netWorth || 0;
+      document.getElementById("netWorth").textContent = `$${total.toLocaleString()}`;
+    })
+    .catch(error => {
+      console.error("Error fetching net worth:", error);
+      document.getElementById("netWorth").textContent = "Error";
+    });
 }
 function updateBudgetChart() {
   const budgetLeft = user.monthlyLimit - user.currentExpense;
