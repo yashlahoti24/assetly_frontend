@@ -10,18 +10,22 @@ document.addEventListener('DOMContentLoaded', function () {
 function setupCharts() {
     charts.investment = new Chart(document.getElementById('investmentChart').getContext('2d'), {
         type: 'pie',
+        //fetch data from backend for data
         data: { labels: ['Stocks', 'Gold'], datasets: [{ data: [0, 0], backgroundColor: ['#0d6efd', '#ffc107'] }] },
         options: { responsive: false }
     });
     charts.sector = new Chart(document.getElementById('sectorChart').getContext('2d'), {
+        //fetch data from backend for data feild
         type: 'pie', data: { labels: [], datasets: [{ data: [], backgroundColor: ['#198754', '#dc3545', '#fd7e14', '#6f42c1'] }] },
         options: { responsive: false }
     });
     charts.budget = new Chart(document.getElementById('budgetChart').getContext('2d'), {
+        //fetch data from backend for data feild
         type: 'bar', data: { labels: ['Left', 'Spent'], datasets: [{ data: [3000, 1500], backgroundColor: ['#198754', '#dc3545'] }] },
         options: { responsive: false, indexAxis: 'y' }
     });
     charts.retirement = new Chart(document.getElementById('retirementChart').getContext('2d'), {
+        //fetch data from backend for data feild
         type: 'doughnut', data: { labels: ['Saved', 'Goal'], datasets: [{ data: [65, 35], backgroundColor: ['#198754', '#e9ecef'] }] },
         options: { responsive: false }
     });
@@ -55,12 +59,14 @@ function addInvestment() {
         const sector = document.getElementById('stockSector').value;
         const amount = parseFloat(document.getElementById('stockAmount').value);
         if (!symbol || !name || !qty || !price || !sector) { alert('Please fill all fields'); return; }
+        //backend is needed here to add these feilds to the database
         investments.push({ type: 'Stock', name: `${name} (${symbol})`, amount: amount, sector: sector });
     } else {
         const price = parseFloat(document.getElementById('goldPrice').value);
         const weight = parseFloat(document.getElementById('goldWeight').value);
         const amount = parseFloat(document.getElementById('goldAmount').value);
         if (!price || !weight) { alert('Please fill all fields'); return; }
+        //backend is needed here to add these feilds to the database
         investments.push({ type: 'Gold', name: `Gold (${weight} oz)`, amount: amount, sector: 'Commodities' });
     }
     updateEverything();
