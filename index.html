@@ -1,48 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <title>Assetly - Portfolio Management</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- Bootstrap & Font Awesome -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-      rel="stylesheet"
-    />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
     <link href="ui.css" rel="stylesheet" />
 </head>
-<body>
+
+<body onload="pageLoaded()">
     <div class="container-fluid p-3">
         <div class="row gx-3" style="min-height: 80vh;">
 
             <!-- Left Sidebar -->
             <div class="col-md-3 mb-3 d-flex flex-column justify-content-between">
                 <div class="card flex-grow-1">
-                    <div class="card-body d-flex flex-column justify-content-between h-100">
+                    <div class="card-body d-flex flex-column justify-content-between h-100 ">
                         <div>
-                            <h3 class="text-primary">Assetly</h3>
+                            <a href="/index.html">
+                                <h3 class="text-primary">Assetly</h3>
+                            </a>
                             <p>Hey User</p>
 
                             <!-- Action Buttons -->
                             <button class="btn btn-primary w-100 mb-2" onclick="showAddForm()">
                                 <i class="fas fa-plus"></i> Add Investment
                             </button>
-                            <button class="btn btn-outline-success w-100 mb-2" onclick="showStocksChart()">
-                                <i class="fas fa-chart-line"></i> Stocks
-                            </button>
+                            <a href="/stocks.html"><button class="btn btn-outline-success w-100 mb-2"
+                                    onclick="showStocksChart()">
+                                    <i class="fas fa-chart-line"></i> Stocks
+                                </button>
+                            </a>
                             <button class="btn btn-outline-warning w-100 mb-2" onclick="showGoldChart()">
                                 <i class="fas fa-coins"></i> Gold
                             </button>
                             <button class="btn btn-outline-info w-100 mb-2" onclick="showHistory()">
                                 <i class="fas fa-history"></i> History
                             </button>
-                            <button class="btn btn-outline-secondary w-100 mb-3" onclick="showPortfolio()">
-                                <i class="fas fa-briefcase"></i> Portfolio
-                            </button>
+                            <a href="/portfolio.html">
+                                <button class="btn btn-outline-secondary w-100 mb-3" onclick="showPortfolio()">
+                                    <i class="fas fa-briefcase"></i> Portfolio
+                                </button>
+                            </a>
                         </div>
                         <!-- Profile Button at bottom -->
                         <div class="mt-4">
@@ -67,7 +69,7 @@
 
                 <!-- Row 1: Two pie charts side-by-side -->
                 <div class="row g-3 mb-3 flex-grow-1">
-                    <div class="col-6">
+                    <div class="col-15">
                         <div class="card h-100 chart-card">
                             <div class="card-header">
                                 <h6>Investments</h6>
@@ -77,21 +79,21 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-6">
-                        <div class="card h-100 chart-card">
-                            <div class="card-header">
-                                <h6>Sectors</h6>
-                            </div>
-                            <div class="card-body p-0">
-                                <canvas id="sectorChart"></canvas>
-                            </div>
+                </div>
+                <div class="col-15 mb-3">
+                    <div class="card h-100 chart-card">
+                        <div class="card-header">
+                            <h6>Sectors</h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <canvas id="sectorChart"></canvas>
                         </div>
                     </div>
                 </div>
 
                 <!-- Row 2: Monthly Budget and Retirement Goal -->
                 <div class="row g-3 flex-grow-1">
-                    <div class="col-6">
+                    <div class="col-15 mb-3">
                         <div class="card h-100 chart-card">
                             <div class="card-header">
                                 <h6>Monthly Budget</h6>
@@ -101,14 +103,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-6">
-                        <div class="card h-100 chart-card">
-                            <div class="card-header">
-                                <h6>Retirement Goal</h6>
-                            </div>
-                            <div class="card-body p-0">
-                                <canvas id="retirementChart"></canvas>
-                            </div>
+                </div>
+                <div class="col-15">
+                    <div class="card h-100 chart-card">
+                        <div class="card-header">
+                            <h6>Retirement Goal</h6>
+                        </div>
+                        <div class="card-body p-0">
+                            <canvas id="retirementChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -140,7 +142,7 @@
                 <div class="card flex-grow-1 overflow-auto">
                     <div class="card-body" id="newsSections">
                         <div class="news-card mb-3">
-                            <h6>Loading news...</h6>
+                            <h6><a href="./news.html">Loading news...</a></h6>
                             <p>Please wait while we fetch the latest finance news.</p>
                             <button class="btn btn-sm btn-outline-primary">Loading...</button>
                         </div>
@@ -162,32 +164,12 @@
                 <label for="goldRadio">&nbsp;Gold</label>
             </div>
             <div id="stockFields">
-                <input
-                    type="text"
-                    id="stockSymbol"
-                    class="form-control mb-2"
-                    placeholder="Stock Symbol (AAPL)"
-                />
-                <input
-                    type="text"
-                    id="stockName"
-                    class="form-control mb-2"
-                    placeholder="Company Name"
-                />
-                <input
-                    type="number"
-                    id="stockQty"
-                    class="form-control mb-2"
-                    placeholder="Quantity"
-                    oninput="calculateStock()"
-                />
-                <input
-                    type="number"
-                    id="stockPrice"
-                    class="form-control mb-2"
-                    placeholder="Price per Share"
-                    oninput="calculateStock()"
-                />
+                <input type="text" id="stockSymbol" class="form-control mb-2" placeholder="Stock Symbol (AAPL)" />
+                <input type="text" id="stockName" class="form-control mb-2" placeholder="Company Name" />
+                <input type="number" id="stockQty" class="form-control mb-2" placeholder="Quantity"
+                    oninput="calculateStock()" />
+                <input type="number" id="stockPrice" class="form-control mb-2" placeholder="Price per Share"
+                    oninput="calculateStock()" />
                 <select id="stockSector" class="form-control mb-2">
                     <option value="">Select Sector</option>
                     <option value="IT">Technology</option>
@@ -196,37 +178,15 @@
                     <option value="Energy">Energy</option>
                 </select>
                 <input type="date" id="stockDate" class="form-control mb-2" />
-                <input
-                    type="number"
-                    id="stockAmount"
-                    class="form-control mb-2"
-                    placeholder="Total Amount"
-                    readonly
-                />
+                <input type="number" id="stockAmount" class="form-control mb-2" placeholder="Total Amount" readonly />
             </div>
             <div id="goldFields" style="display: none;">
-                <input
-                    type="number"
-                    id="goldPrice"
-                    class="form-control mb-2"
-                    placeholder="Price per Ounce"
-                    oninput="calculateGold()"
-                />
-                <input
-                    type="number"
-                    id="goldWeight"
-                    class="form-control mb-2"
-                    placeholder="Weight in Ounces"
-                    oninput="calculateGold()"
-                />
+                <input type="number" id="goldPrice" class="form-control mb-2" placeholder="Price per Ounce"
+                    oninput="calculateGold()" />
+                <input type="number" id="goldWeight" class="form-control mb-2" placeholder="Weight in Ounces"
+                    oninput="calculateGold()" />
                 <input type="date" id="goldDate" class="form-control mb-2" />
-                <input
-                    type="number"
-                    id="goldAmount"
-                    class="form-control mb-2"
-                    placeholder="Total Amount"
-                    readonly
-                />
+                <input type="number" id="goldAmount" class="form-control mb-2" placeholder="Total Amount" readonly />
             </div>
             <button class="btn btn-primary" onclick="addInvestment()">Add Investment</button>
             <button class="btn btn-secondary" onclick="closeForm()">Cancel</button>
@@ -238,11 +198,7 @@
         <div class="modal-box">
             <h5>Profile</h5>
             <div class="text-center mb-3">
-                <img
-                    src="https://via.placeholder.com/80"
-                    class="rounded-circle"
-                    alt="Profile Photo"
-                />
+                <img src="https://via.placeholder.com/80" class="rounded-circle" alt="Profile Photo" />
             </div>
             <div class="mb-2">
                 <strong>Name:</strong> <span id="profileName">John Doe</span>
@@ -323,4 +279,5 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>
