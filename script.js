@@ -134,7 +134,7 @@ function updateProfile() {
 
 // ..............Getting News from Backend................
 
-async function pageloaded() {
+async function newsPageloaded() {
     const news = await fetch('http://localhost:8081/news/')
     // console.log(news);
 
@@ -161,4 +161,43 @@ async function pageloaded() {
     })
 
 
+}
+
+
+async function portfolioPageLoaded(){
+    const portfolio = await fetch('http://localhost:8081/portfolio/')
+    
+    if (!portfolio.ok)
+        console.log("Error fetching from backend");
+
+    let portfolioData = await portfolio.json();
+
+    let Table = document.getElementById("tableBody")
+    console.log(Table);
+
+    portfolioData.forEach((i) => {
+        let newtr = document.createElement("tr")
+        Table.appendChild(newtr)
+        let newtr1 = document.createElement('td')
+        newtr.appendChild(newtr1)
+        let newtr2 = document.createElement('td')
+        let newtr3 = document.createElement('td')
+        let newtr4 = document.createElement('td')
+        let newtr5 = document.createElement('td')
+        let newtr6 = document.createElement('td')
+        let newtr7 = document.createElement('td')
+        newtr.appendChild(newtr2)
+        newtr.appendChild(newtr3)
+        newtr.appendChild(newtr4)
+        newtr.appendChild(newtr5)
+        newtr.appendChild(newtr6)
+        newtr.appendChild(newtr7)
+        newtr1.innerHTML = i.STOCK_ID
+        newtr2.innerHTML = i.STOCK_NAME
+        newtr3.innerHTML = i.SECTOR
+        newtr4.innerHTML = i.PURCHASE_DATE.slice(0, 10)
+        newtr5.innerHTML = i.QUANTITY
+        newtr6.innerHTML = i.PRICE
+        newtr7.innerHTML = i.AMOUNT
+    })
 }
