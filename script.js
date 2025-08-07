@@ -4,7 +4,7 @@ let user = {
   email: "john@email.com",
   pan: "ABCDE1234F",
   dob: "1990-01-15",
-  monthlyLimit: 5000,
+  monthlyLimit: 1000000,
   currentExpense: 0,
 };
 let charts = {};
@@ -18,7 +18,38 @@ document.addEventListener("DOMContentLoaded", function  () {
   loadNewsData();
   updateNetWorth();
   // updateInvestmentChart()
+  updateBudgetChart()
 });
+
+async function updateBudgetChart() {
+  try {
+      const response = await fetch("http://localhost:3000/api/current-expense");
+      const data = await response.json();
+
+      const monthlyLimit = user.monthlyLimit; // Assuming 'user' object is globally available
+      const spent = data.totalExpense;
+      const left = Math.max(0, monthlyLimit - spent);
+
+      if (charts.budget) charts.budget.destroy(); // destroy previous chart if exists
+
+      charts.budget = new Chart(document.getElementById('budgetChart').getContext('2d'), {
+          type: 'bar',
+          data: {
+              labels: ['Left', 'Spent'],
+              datasets: [{
+                  data: [left, spent],
+                  backgroundColor: ['#198754', '#dc3545']
+              }]
+          },
+          options: {
+              responsive: false,
+              indexAxis: 'y'
+          }
+      });
+  } catch (error) {
+      console.error("Error fetching budget data:", error);
+  }
+}
 
 
 function setupCharts() {
@@ -100,10 +131,31 @@ fetch('http://localhost:3000/sector-distribution')
   })
   .catch(err => console.error('Error fetching sector distribution:', err));
 
+  fetch('http://localhost:3000/current-expense')
+  .then(response => response.json())
+  .then(data => {
+    const spent = data.totalExpense;
+    const left = user.monthlyLimit - spent;
+
     charts.budget = new Chart(document.getElementById('budgetChart').getContext('2d'), {
-        type: 'bar', data: { labels: ['Left', 'Spent'], datasets: [{ data: [3000, 1500], backgroundColor: ['#198754', '#dc3545'] }] },
-        options: { responsive: false, indexAxis: 'y' }
+      type: 'bar',
+      data: {
+        labels: ['Left', 'Spent'],
+        datasets: [{
+          label: 'Budget Status',
+          data: [left, spent],
+          backgroundColor: ['#198754', '#dc3545']
+        }]
+      },
+      options: {
+        responsive: false,
+        indexAxis: 'y'
+      }
     });
+  })
+  .catch(error => {
+    console.error('Error fetching expense data:', error);
+  });
     charts.retirement = new Chart(document.getElementById('retirementChart').getContext('2d'), {
         type: 'doughnut', data: { labels: ['Saved', 'Goal'], datasets: [{ data: [65, 35], backgroundColor: ['#198754', '#e9ecef'] }] },
         options: { responsive: false }
@@ -222,6 +274,7 @@ function addInvestment() {
             .then((res) => res.json())
             .then((data) => {
               console.log("Stock saved:", data);
+              location.reload()
             })
             .catch((error) => {
               console.error("Error saving stock:", error);
@@ -268,6 +321,7 @@ function addInvestment() {
         })
         .then(data => {
           console.log('Gold investment saved:', data); // optional if you want to refresh view
+          location.reload()
         })
         .catch(error => {
           console.error('Error:', error);
