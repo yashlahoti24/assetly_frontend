@@ -426,6 +426,22 @@ async function pageLoaded() {
     let worth = document.getElementById('netWorth')
     worth.innerHTML=`$${netWorth}`
 }
+async function profileLoaded() {
+    const portfolio = await fetch('http://localhost:8081/portfolio/')
+
+    if (!portfolio.ok)
+        console.log("Error fetching from backend");
+
+    let portfolioData = await portfolio.json();
+
+    let netWorth = 0;
+    portfolioData.forEach((i) => {
+        netWorth += i.AMOUNT;
+    });
+    console.log(netWorth);
+    let worth = document.getElementById('networth')
+    worth.innerHTML=`$${netWorth}`
+}
 
 // ..............Getting News from Backend................
 
