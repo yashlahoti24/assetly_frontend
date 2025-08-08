@@ -1,116 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <title>Assetly - Portfolio Management</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="ui.css" rel="stylesheet">
+    <title>Stock Viewer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> <!-- for icons -->
 </head>
+<body class="bg-light">
 
-<body>
-    <div class="container-fluid p-3">
+    <div class="container-fluid">
         <div class="row">
-            <!-- Sidebar Left -->
-            <div class="col-md-3 mb-3">
-                <div class="card">
-                    <div class="card-body position-fixed">
-                        <a href="/index.html"><h3 class="text-primary">Assetly</h3></a>
-                        <p>Hey User</p>
-                        <button class="btn btn-primary w-100 mb-3" onclick="showAddForm()">
-                            <i class="fas fa-plus"></i> Add Investment
-                        </button>
-                        <div id="investmentTable" style="display: none;">
-                            <h6>My Investments</h6>
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Type</th>
-                                        <th>Name</th>
-                                        <th>Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="investmentList"></tbody>
-                            </table>
-                        </div>
-                        <div class="mt-4 p-3 bg-light rounded">
-                            <h6 class="mb-2"><i class="fas fa-user"></i> Profile</h6>
-                            <p class="mb-1"><strong>Name:</strong> <span id="profileName">John Doe</span></p>
-                            <p class="mb-2"><strong>Email:</strong> <span id="profileEmail">john@email.com</span></p>
-                            <button class="btn btn-outline-primary btn-sm w-100" onclick="showProfileForm()">
-                                <i class="fas fa-edit"></i> Edit
+            <!-- Sidebar -->
+            <div class="col-md-3 bg-white vh-100">
+                <div class="card h-100">
+                    <div class="card-body d-flex flex-column justify-content-between h-100">
+                        <div>
+                            <a href="/index.html">
+                                <h3 class="text-primary">Assetly</h3>
+                            </a>
+                            <p>Hey User</p>
+
+                            <button class="btn btn-primary w-100 mb-2" onclick="showAddForm()">
+                                <i class="fas fa-plus"></i> Add Investment
                             </button>
+                            <a href="/stocks.html">
+                                <button class="btn btn-outline-success w-100 mb-2" onclick="showStocksChart()">
+                                    <i class="fas fa-chart-line"></i> Stocks
+                                </button>
+                            </a>
+                            <button class="btn btn-outline-warning w-100 mb-2" onclick="showGoldChart()">
+                                <i class="fas fa-coins"></i> Gold
+                            </button>
+                            <a href="./history.html">
+                                <button class="btn btn-outline-info w-100 mb-2" onclick="showHistory()">
+                                    <i class="fas fa-history"></i> History
+                                </button>
+                            </a>
+                            <a href="/portfolio.html">
+                                <button class="btn btn-outline-secondary w-100 mb-3" onclick="showPortfolio()">
+                                    <i class="fas fa-briefcase"></i> Portfolio
+                                </button>
+                            </a>
+                        </div>
+                        <div class="mt-4">
+                            <a href="profile.html">
+                                <button class="btn btn-outline-primary btn-sm w-100">
+                                    <i class="fas fa-user-circle me-2"></i>Profile
+                                </button>
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Stock -->
-             <div class="col">
-            <h1>Stock Price Viewer</h1>
-            <input type="text" id="symbol" placeholder="AAPL" />
-            <button onclick="getStockData()" class="btn btn-secondary">Get Stock Data</button>
-        
-            <div id="stock-data"></div>
-            <canvas id="stockChart" width="600" height="300"></canvas>
-        </div>
-        </div>
+            <!-- Main Content -->
+            <div class="col-md-9 py-5">
+                <h1 class="text-center mb-4">Stock Price Viewer</h1>
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <input type="text" id="symbol" class="form-control" placeholder="Enter Stock Symbol (e.g. AAPL)">
+                    </div>
+                    <div class="col-md-3">
+                        <select id="timeframe" class="form-select">
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button onclick="getStockData()" class="btn btn-primary w-100">Get Stock Data</button>
+                    </div>
+                </div>
 
-        <!-- Add Investment Overlay -->
-        <div id="addInvestmentForm" class="modal-overlay" style="display: none;">
-            <div class="modal-box">
-                <h5>Add Investment</h5>
-                <div class="mb-2">
-                    <label>Type:&nbsp;</label>
-                    <input type="radio" name="type" value="stock" id="stockRadio" checked onchange="toggleType()"><label
-                        for="stockRadio">&nbsp;Stock</label>
-                    <input type="radio" name="type" value="gold" id="goldRadio" onchange="toggleType()"><label
-                        for="goldRadio">&nbsp;Gold</label>
-                </div>
-                <div id="stockFields">
-                    <input type="text" id="stockSymbol" class="form-control mb-2" placeholder="Stock Symbol (AAPL)">
-                    <input type="text" id="stockName" class="form-control mb-2" placeholder="Company Name">
-                    <input type="number" id="stockQty" class="form-control mb-2" placeholder="Quantity"
-                        oninput="calculateStock()">
-                    <input type="number" id="stockPrice" class="form-control mb-2" placeholder="Price per Share"
-                        oninput="calculateStock()">
-                    <select id="stockSector" class="form-control mb-2">
-                        <option value="">Select Sector</option>
-                        <option value="IT">Technology</option>
-                        <option value="Finance">Finance</option>
-                        <option value="Healthcare">Healthcare</option>
-                        <option value="Energy">Energy</option>
-                    </select>
-                    <input type="number" id="stockAmount" class="form-control mb-2" placeholder="Total Amount" readonly>
-                </div>
-                <div id="goldFields" style="display: none;">
-                    <input type="number" id="goldPrice" class="form-control mb-2" placeholder="Price per Ounce"
-                        oninput="calculateGold()">
-                    <input type="number" id="goldWeight" class="form-control mb-2" placeholder="Weight in Ounces"
-                        oninput="calculateGold()">
-                    <input type="number" id="goldAmount" class="form-control mb-2" placeholder="Total Amount" readonly>
-                </div>
-                <button class="btn btn-primary" onclick="addInvestment()">Add Investment</button>
-                <button class="btn btn-secondary" onclick="closeForm()">Cancel</button>
+                <canvas id="stockChart" height="100"></canvas>
+                <div id="stock-data" class="mb-4"></div>
             </div>
         </div>
+    </div>
 
-        <!-- Edit Profile Overlay -->
-        <div id="editProfileForm" class="modal-overlay" style="display: none;">
-            <div class="modal-box">
-                <h5>Edit Profile</h5>
-                <input type="text" id="editName" class="form-control mb-2" placeholder="Name">
-                <input type="email" id="editEmail" class="form-control mb-2" placeholder="Email">
-                <button class="btn btn-primary" onclick="updateProfile()">Update</button>
-                <button class="btn btn-secondary" onclick="closeProfileForm()">Cancel</button>
-            </div>
-        </div>
-
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="stocks.js"></script>
-        <script src="script.js"></script>
+    <script src="stocks.js"></script>
 </body>
-
 </html>

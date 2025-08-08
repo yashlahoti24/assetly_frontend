@@ -20,13 +20,13 @@
                 <div class="card flex-grow-1">
                     <div class="card-body d-flex flex-column justify-content-between h-100 ">
                         <div>
-                            <a href="/index.html">
-                                <h3 class="text-primary">Assetly</h3>
+                            <a href="/index.html" class="navbar-brand">
+                                <h1 class="center text-primary m-2 text-align-center">Assetly</h1>
                             </a>
-                            <p>Hey User</p>
+                            <h5 class="m-2">Hey Arjun</h5>
 
                             <!-- Action Buttons -->
-                            <button class="btn btn-primary w-100 mb-2" onclick="showAddForm()">
+                            <button class="btn btn-primary w-100 mt-2 mb-2" onclick="showAddForm()">
                                 <i class="fas fa-plus"></i> Add Investment
                             </button>
                             <a href="/stocks.html"><button class="btn btn-outline-success w-100 mb-2"
@@ -37,9 +37,11 @@
                             <button class="btn btn-outline-warning w-100 mb-2" onclick="showGoldChart()">
                                 <i class="fas fa-coins"></i> Gold
                             </button>
-                            <button class="btn btn-outline-info w-100 mb-2" onclick="showHistory()">
-                                <i class="fas fa-history"></i> History
-                            </button>
+                            <a href="./history.html">
+                                <button class="btn btn-outline-info w-100 mb-2" onclick="showHistory()">
+                                    <i class="fas fa-history"></i> History
+                                </button>
+                            </a>
                             <a href="/portfolio.html">
                                 <button class="btn btn-outline-secondary w-100 mb-3" onclick="showPortfolio()">
                                     <i class="fas fa-briefcase"></i> Portfolio
@@ -47,12 +49,12 @@
                             </a>
                         </div>
                         <!-- Profile Button at bottom -->
-                        <div class="mt-4">
+                        <div class="mt-2">
                             <a href="profile.html">
-                            <button class="btn btn-outline-primary btn-sm w-100">
-                                <i class="fas fa-user-circle me-2"></i>Profile
-                            </button>
-                        </a>
+                                <button class="btn btn-outline-primary btn-sm w-100">
+                                    <i class="fas fa-user-circle me-2"></i>Profile
+                                </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -178,6 +180,12 @@
                     <option value="Finance">Finance</option>
                     <option value="Healthcare">Healthcare</option>
                     <option value="Energy">Energy</option>
+                    <option value="Banking">Banking</option>
+                    <option value="FMCG">FMCG</option>
+                    <option value="Automobile">Automobile</option>
+                    <option value="Telecom">Telecom</option>
+                    <option value="IT">IT</option>
+                    <option value="Retail">Retail</option>
                 </select>
                 <input type="date" id="stockDate" class="form-control mb-2" />
                 <input type="number" id="stockAmount" class="form-control mb-2" placeholder="Total Amount" readonly />

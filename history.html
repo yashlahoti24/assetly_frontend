@@ -10,7 +10,7 @@
     <link href="ui.css" rel="stylesheet">
 </head>
 
-<body onload="portfolioPageLoaded()">
+<body onload="historyPageLoaded()">
     <div class="container-fluid p-3">
         <div class="row">
             <!-- Sidebar Left -->
@@ -60,8 +60,8 @@
             </div>
 
             <!-- Add portoflio here -->
-            <div class="col  row-cols-1 row-cols-md-1 g-4" id="parentPortfolio">
-                <h3>Holdings</h3>
+            <div class="col  row-cols-1 row-cols-md-1 g-4" id="parentHistory">
+                <h3>My Recent Investments</h3>
                 <!-- Portfolio data will be dynamically inserted here -->
                 <table border="3">
                     <thead>
@@ -76,7 +76,7 @@
 
                         </tr>
                     </thead>
-                    <tbody id="tableBody"></tbody>
+                    <tbody id="historyTableBody"></tbody>
                 </table>
 
 

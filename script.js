@@ -4,7 +4,7 @@ let user = {
     email: "john@email.com",
     pan: "ABCDE1234F",
     dob: "1990-01-15",
-    monthlyLimit: 5000,
+    monthlyLimit: 1000000,
     currentExpense: 0,
 };
 let charts = {};
@@ -16,65 +16,162 @@ document.addEventListener("DOMContentLoaded", function () {
     setupCharts();
     loadProfile();
     loadNewsData();
+    updateNetWorth();
+    // updateInvestmentChart()
+    updateBudgetChart()
 });
 
-function setupCharts() {
-    charts.investment = new Chart(
-        document.getElementById("investmentChart").getContext("2d"),
-        {
-            type: "pie",
+async function updateBudgetChart() {
+    try {
+        const response = await fetch("http://localhost:8081/api/current-expense");
+        const data = await response.json();
+
+        const monthlyLimit = user.monthlyLimit; // Assuming 'user' object is globally available
+        const spent = data.totalExpense;
+        const left = Math.max(0, monthlyLimit - spent);
+
+        if (charts.budget) charts.budget.destroy(); // destroy previous chart if exists
+
+        charts.budget = new Chart(document.getElementById('budgetChart').getContext('2d'), {
+            type: 'bar',
             data: {
-                labels: ["Stocks", "Gold"],
-                datasets: [{ data: [0, 0], backgroundColor: ["#0d6efd", "#ffc107"] }],
+                labels: ['Left', 'Invested'],
+                datasets: [{
+                    data: [left, invested],
+                    backgroundColor: ['#198754', '#dc3545']
+                }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-            },
-        }
-    );
+                responsive: false,
+                indexAxis: 'y'
+            }
+        });
+    } catch (error) {
+        console.error("Error fetching budget data:", error);
+    }
+}
 
-    charts.sector = new Chart(document.getElementById("sectorChart").getContext("2d"), {
-        type: "pie",
+
+function setupCharts() {
+    // Create the chart with initial zero data
+    // Create the chart with initial zero data
+    charts.investment = new Chart(document.getElementById('investmentChart').getContext('2d'), {
+        type: 'pie',
+        data: {
+            labels: ['Stocks', 'Gold'],
+            datasets: [{
+                data: [0, 0],
+                backgroundColor: ['#0d6efd', '#ffc107']
+            }]
+        },
+        options: {
+            responsive: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            return `${label}: ${value} investments`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Fetch investment data from backend and update the chart
+    fetch('http://localhost:8081/total-investments')
+        .then(response => response.json())
+        .then(data => {
+            const stocksAmount = data.stocks || 0;
+            const goldAmount = data.gold || 0;
+
+            // ✅ Explicitly set labels and data
+            charts.investment.data.labels = ['Stocks', 'Gold'];
+            charts.investment.data.datasets[0].data = [stocksAmount, goldAmount];
+            charts.investment.update();
+        })
+        .catch(error => {
+            console.error("Error fetching investment data:", error);
+        });
+
+    charts.sector = new Chart(document.getElementById('sectorChart').getContext('2d'), {
+        type: 'pie',
         data: {
             labels: [],
-            datasets: [
-                {
-                    data: [],
-                    backgroundColor: ["#198754", "#dc3545", "#fd7e14", "#6f42c1"],
-                },
-            ],
+            datasets: [{
+                data: [],
+                backgroundColor: [
+                    "#FF5733", // Red-Orange
+                    "#33B5FF", // Sky Blue
+                    "#28A745", // Green
+                    "#FFC107", // Amber
+                    "#6F42C1", // Purple
+                    "#E83E8C", // Pink
+                    "#20C997", // Teal
+                    "#FD7E14", // Orange
+                    "#343A40", // Dark Gray
+                    "#007BFF",  // Bootstrap Blue
+                    "#4B0082", "#FF4500", "#228B22", "#FFD700", "#00CED1"
+                ]
+            }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
-        },
-    });
-
-    charts.budget = new Chart(document.getElementById("budgetChart").getContext("2d"), {
-        type: "bar",
-        data: {
-            labels: ["Left", "Spent"],
-            datasets: [{ data: [user.monthlyLimit, user.currentExpense], backgroundColor: ["#198754", "#dc3545"] }],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            indexAxis: "y",
-        },
-    });
-
-    charts.retirement = new Chart(
-        document.getElementById("retirementChart").getContext("2d"),
-        {
-            type: "doughnut",
-            data: {
-                labels: ["Saved", "Goal"],
-                datasets: [{ data: [65, 35], backgroundColor: ["#198754", "#e9ecef"] }],
-            },
-            options: { responsive: true, maintainAspectRatio: false },
+            responsive: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            return `${label}: ${value} investments`;
+                        }
+                    }
+                }
+            }
         }
-    );
+    });
+
+    // Fetch sector distribution data from backend and update the chart
+    fetch('http://localhost:8081/sector-distribution')
+        .then(res => res.json())
+        .then(data => {
+            charts.sector.data.labels = data.labels;
+            charts.sector.data.datasets[0].data = data.data;
+            charts.sector.update();
+        })
+        .catch(err => console.error('Error fetching sector distribution:', err));
+
+    fetch('http://localhost:8081/current-expense')
+        .then(response => response.json())
+        .then(data => {
+            const spent = data.totalExpense;
+            const left = user.monthlyLimit - spent;
+
+            charts.budget = new Chart(document.getElementById('budgetChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Left', 'Invested'],
+                    datasets: [{
+                        label: 'Budget Status',
+                        data: [left, spent],
+                        backgroundColor: ['#198754', '#dc3545']
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    indexAxis: 'y'
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching expense data:', error);
+        });
+    charts.retirement = new Chart(document.getElementById('retirementChart').getContext('2d'), {
+        type: 'doughnut', data: { labels: ['Saved', 'Goal'], datasets: [{ data: [65, 35], backgroundColor: ['#198754', '#e9ecef'] }] },
+        options: { responsive: false }
+    });
 }
 
 // Fetch and display finance news: split into sections
@@ -151,57 +248,99 @@ function calculateGold() {
     const weight = parseFloat(document.getElementById("goldWeight").value) || 0;
     document.getElementById("goldAmount").value = (price * weight).toFixed(2);
 }
-async function addInvestment() {
-    const isStock = document.getElementById("stockRadio").checked;
-
+function addInvestment() {
+    const isStock = document.getElementById('stockRadio').checked;
     if (isStock) {
-        const stockData = {
-            symbol: document.getElementById("stockSymbol").value.trim(),
-            name: document.getElementById("stockName").value.trim(),
-            quantity: parseFloat(document.getElementById("stockQty").value),
-            price: parseFloat(document.getElementById("stockPrice").value),
-            sector: document.getElementById("stockSector").value,
-            date: document.getElementById("stockDate").value,
-            amount: parseFloat(document.getElementById("stockAmount").value),
-        };
-        if (!stockData.symbol || !stockData.name || !stockData.quantity || !stockData.price || !stockData.sector) {
-            alert("Please fill all fields");
-            return;
+        const symbol = document.getElementById('stockSymbol').value.trim();
+        const name = document.getElementById('stockName').value.trim();
+        const qty = parseFloat(document.getElementById('stockQty').value);
+        const price = parseFloat(document.getElementById('stockPrice').value);
+        const sector = document.getElementById('stockSector').value;
+        const amount = parseFloat(document.getElementById('stockAmount').value);
+        if (!symbol || !name || !qty || !price || !sector) { alert('Please fill all fields'); return; }
+        investments.push({ type: 'Stock', name: `${name} (${symbol})`, amount: amount, sector: sector }); if (isStock) {
+            const symbol = document.getElementById('stockSymbol').value.trim();
+            const name = document.getElementById('stockName').value.trim();
+            const qty = parseFloat(document.getElementById('stockQty').value);
+            const price = parseFloat(document.getElementById('stockPrice').value);
+            const sector = document.getElementById('stockSector').value;
+            // const amount = parseFloat(document.getElementById('stockAmount').value);
+            const date = document.getElementById('stockDate').value;
+
+            if (!symbol || !name || !qty || !price || !sector) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            // Add to frontend investments array
+            investments.push({ type: 'Stock', name: `${name} (${symbol})`, sector, date });
+
+
+            // 🔁 Send to backend
+            fetch(`${API_BASE_URL}/user-stocks`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ symbol, name, quantity: qty, price, sector, date }),
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    console.log("Stock saved:", data);
+                    location.reload()
+                })
+                .catch((error) => {
+                    console.error("Error saving stock:", error);
+                });
         }
-        if (user.currentExpense + stockData.amount > user.monthlyLimit) {
-            alert("This investment exceeds your monthly expense limit!");
-            return;
-        }
-        investments.push({
-            type: "Stock",
-            name: `${stockData.name} (${stockData.symbol})`,
-            amount: stockData.amount,
-            sector: stockData.sector,
-            date: stockData.date,
-        });
-        user.currentExpense += stockData.amount;
+
     } else {
-        const goldData = {
-            price: parseFloat(document.getElementById("goldPrice").value),
-            weight: parseFloat(document.getElementById("goldWeight").value),
-            date: document.getElementById("goldDate").value,
-            amount: parseFloat(document.getElementById("goldAmount").value),
-        };
-        if (!goldData.price || !goldData.weight) {
-            alert("Please fill all fields");
+        const price = parseFloat(document.getElementById('goldPrice').value);
+        const weight = parseFloat(document.getElementById('goldWeight').value);
+        const amount = parseFloat(document.getElementById('goldAmount').value);
+        const date = document.getElementById('goldDate').value;
+
+        if (!price || !weight || !amount || !date) {
+            alert('Please fill all fields');
             return;
         }
+
+        // Add to frontend array
         investments.push({
-            type: "Gold",
-            name: `Gold (${goldData.weight} oz)`,
-            amount: goldData.amount,
-            sector: "Commodities",
-            date: goldData.date,
+            type: 'Gold',
+            name: `Gold (${weight} oz)`,
+            amount: amount,
+            sector: 'Commodities'
         });
+
+        // Send to backend
+        fetch('http://localhost:8081/user-gold', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                price: price,
+                weight: weight,
+                amount: amount,
+                date: date
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to save gold investment');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Gold investment saved:', data); // optional if you want to refresh view
+                location.reload()
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
     }
     updateEverything();
     closeForm();
-    alert("Investment added successfully!");
+    alert('Investment added successfully!');
 }
 
 // Show and close modals for Stocks, Gold, History
@@ -344,7 +483,7 @@ function loadProfile() {
 // Update functions
 function updateEverything() {
     updateCharts();
-    updateNetWorth();
+
     updateBudgetChart();
 }
 function updateCharts() {
@@ -366,8 +505,16 @@ function updateCharts() {
     charts.sector.update();
 }
 function updateNetWorth() {
-    const total = investments.reduce((sum, inv) => sum + inv.amount, 0);
-    document.getElementById("netWorth").textContent = `$${total.toLocaleString()}`;
+    fetch("http://localhost:8081/net-worth")
+        .then(response => response.json())
+        .then(data => {
+            const total = data.netWorth || 0;
+            document.getElementById("netWorth").textContent = `$${total.toLocaleString()}`;
+        })
+        .catch(error => {
+            console.error("Error fetching net worth:", error);
+            document.getElementById("netWorth").textContent = "Error";
+        });
 }
 function updateBudgetChart() {
     const budgetLeft = user.monthlyLimit - user.currentExpense;
@@ -411,20 +558,31 @@ function updateProfile() {
 
 // Index page Load
 async function pageLoaded() {
-    const portfolio = await fetch('http://localhost:8081/portfolio/')
+    fetch("http://localhost:8081/net-worth")
+        .then(response => response.json())
+        .then(data => {
+            const total = data.netWorth || 0;
+            document.getElementById("netWorth").textContent = `$${total.toLocaleString()}`;
+        })
+        .catch(error => {
+            console.error("Error fetching net worth:", error);
+            document.getElementById("netWorth").textContent = "Error";
+        });
+    // const portfolio = await fetch('http://localhost:8081/portfolio/')
 
-    if (!portfolio.ok)
-        console.log("Error fetching from backend");
+    // if (!portfolio.ok)
+    //     console.log("Error fetching from backend");
 
-    let portfolioData = await portfolio.json();
+    // let portfolioData = await portfolio.json();
 
-    let netWorth = 0;
-    portfolioData.forEach((i) => {
-        netWorth += i.AMOUNT;
-    });
-    console.log(netWorth);
-    let worth = document.getElementById('netWorth')
-    worth.innerHTML=`$${netWorth}`
+    // let netWorth = 0;
+    // portfolioData.forEach((i) => {
+    //     netWorth += i.AMOUNT;
+    // });
+    // console.log(netWorth);
+    // let worth = document.getElementById('netWorth')
+    // worth.innerHTML=`$${netWorth}`
+
 }
 async function profileLoaded() {
     const portfolio = await fetch('http://localhost:8081/portfolio/')
@@ -440,7 +598,7 @@ async function profileLoaded() {
     });
     console.log(netWorth);
     let worth = document.getElementById('networth')
-    worth.innerHTML=`$${netWorth}`
+    worth.innerHTML = `$${netWorth}`
 }
 
 // ..............Getting News from Backend................
@@ -519,4 +677,41 @@ async function portfolioPageLoaded() {
     });
     console.log(netWorth);
 }
+async function historyPageLoaded() {
+    const history = await fetch('http://localhost:8081/history/')
 
+    if (!history.ok)
+        console.log("Error fetching from backend");
+
+    let historyData = await history.json();
+
+    let Table = document.getElementById("historyTableBody")
+    console.log(Table);
+
+    historyData.forEach((i) => {
+        let newtr = document.createElement("tr")
+        Table.appendChild(newtr)
+        let newtr1 = document.createElement('td')
+        newtr.appendChild(newtr1)
+        let newtr2 = document.createElement('td')
+        let newtr3 = document.createElement('td')
+        let newtr4 = document.createElement('td')
+        let newtr5 = document.createElement('td')
+        let newtr6 = document.createElement('td')
+        let newtr7 = document.createElement('td')
+        newtr.appendChild(newtr2)
+        newtr.appendChild(newtr3)
+        newtr.appendChild(newtr4)
+        newtr.appendChild(newtr5)
+        newtr.appendChild(newtr6)
+        newtr.appendChild(newtr7)
+        newtr1.innerHTML = i.STOCK_ID
+        newtr2.innerHTML = i.STOCK_NAME
+        newtr3.innerHTML = i.SECTOR
+        newtr4.innerHTML = i.PURCHASE_DATE.slice(0, 10)
+        newtr5.innerHTML = i.QUANTITY
+        newtr6.innerHTML = i.PRICE
+        newtr7.innerHTML = i.AMOUNT
+    })
+
+}
